@@ -7,45 +7,60 @@ import AttackingGhost from './AttackingGhost';
 import RunAwayGhost from './RunAwayGhost';
 import PathNode from '../../PathNode';
 import { getMaxUp, getMaxLeft, getMaxDown, getMaxRight } from '../../../utils/collisionHelpers';
+import Pacman from '../Pacman';
+import { GhostType, ghostConfig } from '../../../configs/ghosts';
 
 enum Direction {Left, Right, Up, Down};
 
 export default class Ghost extends Actor {
 
-    static dx = 1;
-    static dy = 1;
-
-    private direction: Direction;
-    private map: GameMap;
-    private gameState: GameState;
-
-    color: string;
+    dx: number;
+    dy: number;
     imgUrl: string;
 
     currentDestination: PathNode[];
 
+    protected map: GameMap;
     private ghostStates: any;
+    private direction: Direction;
+    private pacman: Pacman; //how could be done better?
+    private gameState: GameState;
 
-    constructor(imgUrl: string, map: GameMap, gameState: GameState) {
+    constructor(ghostType: GhostType, map: GameMap, gameState: GameState, pacman: Pacman) {
         super();
         this.map = map;
         this.gameState = gameState;
+        this.pacman = pacman;
 
-        const {x, y, pathNode} = findRandomStartPosition(map);
-        const {pathNode: pathNode2} = findRandomStartPosition(map);
-        this.currentDestination = findShortestPath(map, pathNode, pathNode2)
+        const {x, y} = findRandomStartPosition(map);
 
-        this.imgUrl = imgUrl;
         this.x = x;
         this.y = y;
         this.width = this.map.tileWidth * 0.8;
         this.height = this.map.tileHeight * 0.9;
+
+        this.retrieveConfig(ghostType);
 
         this.ghostStates = {
             [GhostBehavior.Attacking]: new AttackingGhost(this),
             [GhostBehavior.Blinking]: new RunAwayGhost(this, true),
             [GhostBehavior.RunAway]: new RunAwayGhost(this),
         };
+    }
+
+    retrieveConfig(ghostType: GhostType) {
+        const {speed, imgUrl} = ghostConfig[ghostType];
+        this.imgUrl = imgUrl;
+        this.dx = speed;
+        this.dy = speed;
+    }
+
+    update() {
+        this.updatePosition();
+    }
+
+    draw(ctx: CanvasRenderingContext2D) {
+       this.ghostStates[this.gameState.ghostBehavior].draw(ctx);
     }
 
     get pathNode(): PathNode{
@@ -60,21 +75,15 @@ export default class Ghost extends Actor {
         return this.map.pathNodes.find(node => node.idx === idxStart && node.idy === idyEnd);
     }
 
-    update() {
-        this.updatePosition(this.map);
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-       this.ghostStates[this.gameState.ghostBehavior].draw(ctx);
-    }
-
-    updatePosition(map: GameMap) {
+    updatePosition() {
         const currentNode = this.pathNode;
         if(currentNode) {
-            const currentIndex = this.currentDestination.indexOf(currentNode);
-            if(currentIndex === this.currentDestination.length - 1) {
+            const destinationNode = this.ghostStates[this.gameState.ghostBehavior].getDestinationNode(this.map, this.pacman);
+            this.currentDestination = findShortestPath(this.map, currentNode, destinationNode)
+            if(!this.currentDestination || !this.currentDestination.length) {
                 return;
             }
+            const currentIndex = this.currentDestination.indexOf(currentNode);
             const nextNode = this.currentDestination[currentIndex + 1];
 
             if(nextNode.idx < currentNode.idx) {
@@ -92,16 +101,16 @@ export default class Ghost extends Actor {
         }
 
         if(this.direction === Direction.Left) {
-            this.x -= Math.min(getMaxLeft(this, map), Ghost.dx);
+            this.x -= Math.min(getMaxLeft(this, this.map), this.dx);
         }
         else if(this.direction === Direction.Up) {
-            this.y -= Math.min(getMaxUp(this, map), Ghost.dy);
+            this.y -= Math.min(getMaxUp(this, this.map), this.dy);
         }
         else if(this.direction === Direction.Right) {
-            this.x += Math.min(getMaxRight(this, map), Ghost.dx);
+            this.x += Math.min(getMaxRight(this, this.map), this.dx);
         }
         else if(this.direction === Direction.Down) {
-            this.y += Math.min(getMaxDown(this, map), Ghost.dy);
+            this.y += Math.min(getMaxDown(this, this.map), this.dy);
         }
     }
 }

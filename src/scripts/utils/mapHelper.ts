@@ -8,18 +8,19 @@ export function findRandomStartPosition(map: GameMap) : {x: number, y: number, p
     return {x: randomField.x, y: randomField.y, pathNode: randomField.pathNode};
 }
 
-function getKey(el: PathNode) {
-    return `${el.idx},${el.idy}`;
-}
-
 type AStarObject = {el: PathNode, parent: AStarObject, distance: number};
 
 export function findShortestPath(map: GameMap, start: PathNode, end: PathNode): PathNode[] {
+    if(start === end) {
+        return [];
+    }
+
     const closed: {[key: string]: AStarObject} = {};
     const opened: AStarObject[] = [{el: start, distance: 0, parent: null}];
     let elObject: AStarObject;
+
     do {
-        opened.sort(({el: el1, distance: dis1}, {el: el2, distance: dis2}) => manhatanDistance(el1, end) + dis1 - manhatanDistance(el2, end) - dis2);
+        opened.sort(({el: el1, distance: dis1}, {el: el2, distance: dis2}) => manhattanDistance(el1, end) + dis1 - manhattanDistance(el2, end) - dis2);
         elObject = opened.shift();
         const {el, distance} = elObject;
         closed[el.getKey()] = elObject;
@@ -31,18 +32,23 @@ export function findShortestPath(map: GameMap, start: PathNode, end: PathNode): 
 
     } while(opened.length && elObject.el !== end)
 
-    if(elObject.el !== end) return null;
+    if(elObject.el !== end) {
+        console.warn(`Shortest path wasnnt found. Start: ${start.idx}, ${start.idy} End: ${end.idx}, ${end.idy}`);
+        return null;
+    }
 
     const path = [elObject.el];
     let current = elObject;
     do {
         current = current.parent;
+        if(!current) {
+            console.log(start, end);
+        }
         path.unshift(current.el);
     } while(current.el !== start)
-    console.log(path);
     return path;
 }
 
-function manhatanDistance(firstNode: PathNode, secondNode: PathNode) {
+export function manhattanDistance(firstNode: PathNode, secondNode: PathNode) {
     return Math.abs(firstNode.idx - secondNode.idx) + Math.abs(firstNode.idy - secondNode.idy);
 }

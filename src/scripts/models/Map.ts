@@ -74,7 +74,10 @@ export default class GameMap {
     }
 
     eatFood(visited: Tile[]) {
+        const oldFoodLength = this.foods.length;
         this.foods = this.foods.filter(food => !visited.some(el => el.x === food.x && el.y === food.y));
+        this.gameState.addPoints(oldFoodLength - this.foods.length)
+
         if(this.superfoods.some(superfood => visited.some(el => el.x === superfood.x && el.y === superfood.y))){
             this.gameState.startRunAway();
         }
