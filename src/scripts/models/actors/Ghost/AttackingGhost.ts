@@ -33,7 +33,7 @@ export default class AttackingGhost implements GhostState {
 
     scheduleModeSwitch() {
         const huntingTime = 5000 + Math.floor(5000 * Math.random())
-        const pauseTime = 1500 +  Math.floor(2000 * Math.random());
+        const pauseTime = Math.max(0, 1500 - 100 * this.ghost.gameState.level) +  Math.floor((2000 - this.ghost.gameState.level * 100) * Math.random());
 
         setTimeout(() => {
             this.isHunting = true;

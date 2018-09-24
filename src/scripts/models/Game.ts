@@ -2,6 +2,7 @@ import ActorsManager from './ActorsManager';
 import GameMap from './Map';
 import GameInput from './GameInput';
 import GameState from './GameState';
+import { drawGameOverScreen, drawNextLevelScreen } from '../utils/specialScreens';
 
 export default class Game {
     canvas: HTMLCanvasElement;
@@ -18,14 +19,21 @@ export default class Game {
         this.gameState = new GameState();
         this.map = new GameMap(this.canvas, this.gameState);
         this.actorsManager = new ActorsManager(this.map, this.gameState);
+
         this.gameInput = new GameInput();
         this.loop();
     }
 
-    loop() {
-        if(this.gameState.isFinished) {
-            this.drawFinishScreen();
+    async loop() {
+        if(this.gameState.isGameOver) {
+            drawGameOverScreen(this.ctx, this.canvas);
             return;
+        }
+        if(this.gameState.nextLevelPending){
+            this.map = new GameMap(this.canvas, this.gameState);
+            this.actorsManager = new ActorsManager(this.map, this.gameState);
+            await drawNextLevelScreen(this.ctx, this.canvas);
+            this.gameState.nextLevelPending = false;
         }
         this.clear();
         this.update();
@@ -40,24 +48,13 @@ export default class Game {
     }
 
     update() {
-        this.gameState.executeQueue();
+        this.gameState.levelState.executeQueue();
         this.actorsManager.update(this.gameInput);
     }
 
     draw() {
         this.map.draw(this.ctx);
         this.actorsManager.draw(this.ctx);
-    }
-
-
-    drawFinishScreen() {
-        this.ctx.font = 'bold 80px Arial';
-        this.ctx.fillStyle = 'black';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.strokeStyle = 'white';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2);
     }
 
     queue() {

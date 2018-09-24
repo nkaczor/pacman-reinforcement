@@ -1,3 +1,5 @@
+import LevelState from "./LevelState";
+
 export enum GhostBehavior {
     Attacking = 'Attacking',
     Blinking = 'Blinking',
@@ -7,9 +9,9 @@ export enum GhostBehavior {
 type Task = () => void
 
 export default class GameState{
-    private _isFinished = false;
-    private _level: number;
-    private _score: number;
+    private _isGameOver = false;
+    private _level: number = 1;
+    private _score: number = 0;
     private _ghostBehavior: GhostBehavior = GhostBehavior.Attacking;
     private queue: Task[] = [];
     private timeout: any;
@@ -17,27 +19,38 @@ export default class GameState{
     private levelContainer: HTMLElement;
     private scoreContainer: HTMLElement;
 
+    public nextLevelPending = false;
+    public levelState: LevelState;
+
     constructor() {
         this.levelContainer = document.querySelector('.level');
         this.scoreContainer = document.querySelector('.score');
-
-
-        this.level = 1;
-        this.score = 0;
-
+        this.updateLevelContainer();
+        this.updateScoreContainer();
+        this.levelState = new LevelState(this.level);
     }
 
-    set level(value: number) {
-        if(this._level !== value) {
-            this._level = value;
-            this.levelContainer.innerText = `LEVEL ${this._level}`;
-        }
+    updateLevelContainer() {
+        this.levelContainer.innerText = `LEVEL ${this._level}`;
+    }
+
+    updateScoreContainer() {
+        this.scoreContainer.innerText = `SCORE ${this._score}`;
+    }
+
+    levelUp() {
+        this._level++;
+        this.updateLevelContainer();
+    }
+
+    get level() {
+        return this._level;
     }
 
     set score(value: number) {
         if(this._score !== value) {
             this._score = value;
-            this.scoreContainer.innerText = `SCORE ${this._score}`;
+            this.updateScoreContainer();
         }
     }
 
@@ -49,45 +62,22 @@ export default class GameState{
         return this._ghostBehavior;
     }
 
-    get isFinished() {
-        return this._isFinished;
+    get isGameOver() {
+        return this._isGameOver;
     }
 
-    set isFinished(value: boolean) {
-        this._isFinished = value;
+    set isGameOver(value: boolean) {
+        this._isGameOver = value;
     }
 
     addPoints(value: number) {
         this.score = this.score + value;
     }
 
-    startAttacking() {
-        this.addToQueue(() => {
-            this._ghostBehavior = GhostBehavior.Attacking;
-        })
-    }
-
-    startBlinking() {
-        this.addToQueue(() => {
-            this._ghostBehavior = GhostBehavior.Blinking;
-            this.timeout = setTimeout(this.startAttacking.bind(this), 2000)
-        })
-    }
-
-    startRunAway() {
-        this.addToQueue(() => {
-            this._ghostBehavior = GhostBehavior.RunAway;
-            this.timeout = setTimeout(this.startBlinking.bind(this), 8000)
-        })
-    }
-
-    private addToQueue(task: Task) {
-        this.queue.push(task)
-    }
-
-    executeQueue()
-    {
-        this.queue.forEach((task: Task) => task());
-        this.queue = [];
+    processToNextLevel() {
+        this.levelUp();
+        this.levelState.destroy();
+        this.levelState = new LevelState(this.level);
+        this.nextLevelPending = true;
     }
 }

@@ -20,11 +20,11 @@ export default class Ghost extends Actor {
 
     currentDestination: PathNode[];
 
+    public gameState: GameState;
     protected map: GameMap;
     private ghostStates: any;
     private direction: Direction;
     private pacman: Pacman; //how could be done better?
-    private gameState: GameState;
 
     constructor(ghostType: GhostType, map: GameMap, gameState: GameState, pacman: Pacman) {
         super();
@@ -51,8 +51,9 @@ export default class Ghost extends Actor {
     retrieveConfig(ghostType: GhostType) {
         const {speed, imgUrl} = ghostConfig[ghostType];
         this.imgUrl = imgUrl;
-        this.dx = speed;
-        this.dy = speed;
+        const levelAddition = this.gameState.level * 0.05;
+        this.dx = speed + levelAddition;
+        this.dy = speed + levelAddition;
     }
 
     update() {
@@ -60,7 +61,7 @@ export default class Ghost extends Actor {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-       this.ghostStates[this.gameState.ghostBehavior].draw(ctx);
+       this.ghostStates[this.gameState.levelState.ghostBehavior].draw(ctx);
     }
 
     get pathNode(): PathNode{
@@ -78,7 +79,7 @@ export default class Ghost extends Actor {
     updatePosition() {
         const currentNode = this.pathNode;
         if(currentNode) {
-            const destinationNode = this.ghostStates[this.gameState.ghostBehavior].getDestinationNode(this.map, this.pacman);
+            const destinationNode = this.ghostStates[this.gameState.levelState.ghostBehavior].getDestinationNode(this.map, this.pacman);
             this.currentDestination = findShortestPath(this.map, currentNode, destinationNode)
             if(!this.currentDestination || !this.currentDestination.length) {
                 return;

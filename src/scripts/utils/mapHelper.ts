@@ -33,7 +33,6 @@ export function findShortestPath(map: GameMap, start: PathNode, end: PathNode): 
     } while(opened.length && elObject.el !== end)
 
     if(elObject.el !== end) {
-        console.warn(`Shortest path wasnnt found. Start: ${start.idx}, ${start.idy} End: ${end.idx}, ${end.idy}`);
         return null;
     }
 
@@ -41,9 +40,6 @@ export function findShortestPath(map: GameMap, start: PathNode, end: PathNode): 
     let current = elObject;
     do {
         current = current.parent;
-        if(!current) {
-            console.log(start, end);
-        }
         path.unshift(current.el);
     } while(current.el !== start)
     return path;

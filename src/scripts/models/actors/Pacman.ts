@@ -4,8 +4,6 @@ import GameInput, {KeyboardState} from "../GameInput";
 import {getMaxUp, getMaxDown, getMaxLeft, getMaxRight, findTilesWithCoveredMiddle} from '../../utils/collisionHelpers';
 import {findRandomStartPosition} from "../../utils/mapHelper";
 
-
-
 export default class Pacman extends Actor {
     static dx = 2;
     static dy = 2;

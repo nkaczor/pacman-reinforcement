@@ -32,13 +32,16 @@ export default class ActorsManager {
     }
 
     onCollapse(collapsedGhosts: Ghost[]) {
-        if(this.gameState.ghostBehavior === GhostBehavior.Attacking) {
-            this.gameState.isFinished = true;
+        if(this.gameState.levelState.ghostBehavior === GhostBehavior.Attacking) {
+            this.gameState.isGameOver = true;
         }
         else {
             const oldGhostNumber = this.ghosts.length;
-            this.ghosts = this.ghosts.filter(ghost => collapsedGhosts.every(collapsedGhost => collapsedGhost !== ghost))
-            this.gameState.addPoints((oldGhostNumber - this.ghosts.length) * 10)
+            this.ghosts = this.ghosts.filter(ghost => collapsedGhosts.every(collapsedGhost => collapsedGhost !== ghost));
+            this.gameState.addPoints((oldGhostNumber - this.ghosts.length) * 10);
+            if(!this.ghosts.length) {
+                this.gameState.processToNextLevel();
+            }
         }
     }
 

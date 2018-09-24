@@ -13,18 +13,18 @@ export enum GhostType {
 export const ghostConfig = {
     [GhostType.red]: {
         imgUrl: ghost1,
-        speed: 1.6
+        speed: 1.5
     },
     [GhostType.pink]: {
         imgUrl: ghost2,
-        speed: 1.5
+        speed: 1.4
     },
     [GhostType.blue]: {
         imgUrl: ghost3,
-        speed: 1.4
+        speed: 1.2
     },
     [GhostType.green]: {
         imgUrl: ghost4,
-        speed: 1.3
+        speed: 1.2
     }
 }
