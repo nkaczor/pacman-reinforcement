@@ -38,7 +38,7 @@ export default class ActorsManager {
         else {
             const oldGhostNumber = this.ghosts.length;
             this.ghosts = this.ghosts.filter(ghost => collapsedGhosts.every(collapsedGhost => collapsedGhost !== ghost));
-            this.gameState.addPoints((oldGhostNumber - this.ghosts.length) * 10);
+            this.gameState.addPoints((oldGhostNumber - this.ghosts.length) * 30);
             if(!this.ghosts.length) {
                 this.gameState.processToNextLevel();
             }

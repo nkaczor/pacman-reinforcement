@@ -34,8 +34,8 @@ export default class Ghost extends Actor {
 
         const {x, y} = findRandomStartPosition(map);
 
-        this.x = x;
-        this.y = y;
+        this.x = x + this.map.tileWidth * 0.1;
+        this.y = y + + this.map.tileHeight * 0.05;
         this.width = this.map.tileWidth * 0.8;
         this.height = this.map.tileHeight * 0.9;
 

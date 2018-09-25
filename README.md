@@ -18,13 +18,6 @@ Install npm dependencies
  npm install
 ```
 
-Run the kickstart command
-```sh
-npm run kickstart
-```
-
-**After the project has been kickstarted**
-
 To start the development server
 
 ```sh
