@@ -7,7 +7,7 @@ import { drawGameOverScreen, drawNextLevelScreen } from '../utils/specialScreens
 export default class Game {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D
-
+    isGameStarted: boolean;
     actorsManager: ActorsManager;
     map: GameMap;
     gameInput: GameInput;
@@ -16,20 +16,29 @@ export default class Game {
     constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.ctx = ctx;
+        this.startGame();
+    }
+
+    startGame() {
         this.gameState = new GameState();
         this.map = new GameMap(this.canvas, this.gameState);
         this.actorsManager = new ActorsManager(this.map, this.gameState);
-
         this.gameInput = new GameInput();
+        this.clear();
         this.loop();
     }
 
     async loop() {
-        if(this.gameState.isGameOver) {
-            drawGameOverScreen(this.ctx, this.canvas);
+        if (this.gameState.isGameOver) {
+            await drawGameOverScreen(this.ctx, this.canvas);
+            this.startGame();
             return;
         }
-        if(this.gameState.nextLevelPending){
+        if (!this.isGameStarted) {
+            await drawNextLevelScreen(this.ctx, this.canvas, true);
+            this.isGameStarted = true;
+        }
+        if (this.gameState.nextLevelPending) {
             this.map = new GameMap(this.canvas, this.gameState);
             this.actorsManager = new ActorsManager(this.map, this.gameState);
             await drawNextLevelScreen(this.ctx, this.canvas);

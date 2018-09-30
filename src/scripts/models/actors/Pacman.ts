@@ -3,6 +3,7 @@ import GameMap from "../Map";
 import GameInput, {KeyboardState} from "../GameInput";
 import {getMaxUp, getMaxDown, getMaxLeft, getMaxRight, findTilesWithCoveredMiddle} from '../../utils/collisionHelpers';
 import {findRandomStartPosition} from "../../utils/mapHelper";
+import PathNode from "../PathNode";
 
 export default class Pacman extends Actor {
     static dx = 2;
@@ -13,11 +14,13 @@ export default class Pacman extends Actor {
     y: number;
     size: number;
     lastValidKeyboard: KeyboardState;
+    startNode: PathNode;
 
     constructor(map: GameMap) {
         super();
         this.map = map;
-        const {x, y} = findRandomStartPosition(map);
+        const {x, y, pathNode} = findRandomStartPosition(map);
+        this.startNode = pathNode;
         this.x = x;
         this.y = y;
 

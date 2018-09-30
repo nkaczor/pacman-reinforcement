@@ -39,7 +39,7 @@ export default class GameState{
     }
 
     levelUp() {
-        this._level++;
+        this._level = this._level + 3;
         this.updateLevelContainer();
     }
 

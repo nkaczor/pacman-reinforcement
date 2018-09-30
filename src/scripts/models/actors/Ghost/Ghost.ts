@@ -1,6 +1,6 @@
 import Actor from '../../Actor';
 import GameMap from '../../Map';
-import { findRandomStartPosition, findShortestPath } from '../../../utils/mapHelper';
+import { findRandomStartPosition, findShortestPath, manhattanDistance } from '../../../utils/mapHelper';
 
 import GameState, {GhostBehavior} from '../../GameState';
 import AttackingGhost from './AttackingGhost';
@@ -31,9 +31,7 @@ export default class Ghost extends Actor {
         this.map = map;
         this.gameState = gameState;
         this.pacman = pacman;
-
-        const {x, y} = findRandomStartPosition(map);
-
+        const {x, y} = this.getStartPosition();
         this.x = x + this.map.tileWidth * 0.1;
         this.y = y + + this.map.tileHeight * 0.05;
         this.width = this.map.tileWidth * 0.8;
@@ -46,6 +44,15 @@ export default class Ghost extends Actor {
             [GhostBehavior.Blinking]: new RunAwayGhost(this, true),
             [GhostBehavior.RunAway]: new RunAwayGhost(this),
         };
+    }
+
+    getStartPosition() {
+        let x, y, pathNode;
+        do {
+            ({x, y, pathNode} = findRandomStartPosition(this.map));
+        } while(manhattanDistance(pathNode, this.pacman.startNode) < 8);
+
+        return {x, y};
     }
 
     retrieveConfig(ghostType: GhostType) {
