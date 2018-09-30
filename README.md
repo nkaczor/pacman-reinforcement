@@ -2,7 +2,7 @@
 
 This game is loosely inspired by original pacman game. Your goal is to kill all ghosts or eat all dots. Near the corners of the maze are four larger dots that provide Pacman with the temporary ability to eat the ghosts.
 
- There is an infinite number of levels. Ghosts are faster and with each level
+There is an infinite number of levels. Ghosts are faster with each level and the duration of RunAway mode after eating superfood is shortened as the player progresses through the levels.
 
 ![alt text](/screenshots/pacman.png)
 
